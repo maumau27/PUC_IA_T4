@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="C:/Users/Maurício/Desktop/Puc/IA/PUC_IA_T4/src/jl1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Maurício/Desktop/Puc/IA/PUC_IA_T4/src/jpl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Maurício/Desktop/Puc/IA/PUC_IA_T4/src/INF1771_GameClient.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
