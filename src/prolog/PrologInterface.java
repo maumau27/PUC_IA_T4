@@ -7,6 +7,7 @@ import org.jpl7.Term;
 
 import data.Singletons;
 import dataTypes.Cell;
+import prolog.Translations;
 
 abstract public class PrologInterface {
 
@@ -53,6 +54,7 @@ abstract public class PrologInterface {
 					
 					Singletons.gameGrid.getCell(x, y).discovered = true;
 					Singletons.gameGrid.getCell(x, y).frontier = false;
+					Singletons.gameGrid.getCell(x, y).type = Translations.getJavaCellType(String.valueOf(solution[i].get("O")));
 				}	
 							
 				query = MyProlog.doQuery("fronteira(X,Y)" );	

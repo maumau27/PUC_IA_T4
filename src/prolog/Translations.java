@@ -99,7 +99,7 @@ public class Translations {
 				type = CellType.LANDMINE;
 				break;
 				
-			case "teletransporte":
+			case "teleporte":
 				type = CellType.CYCLONE;
 				break;
 				
@@ -109,14 +109,6 @@ public class Translations {
 				
 			case "power_up":
 				type = CellType.GAS;
-				break;
-				
-			case "inimigo(50,100)":
-				type = CellType.BOSS;
-				break;
-			
-			case "inimigo(20,50)":
-				type = CellType.ENEMY;
 				break;
 				
 			default:

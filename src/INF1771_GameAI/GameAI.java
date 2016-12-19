@@ -162,9 +162,9 @@ public class GameAI
             } else if(s.equals("steps")){
 
             } else if(s.equals("breeze")){
-                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "BURACO)" );
+                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "buraco)" );
             } else if(s.equals("flash")){
-                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "TELEPORTE)" );
+                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "teleporte)" );
             } else if(s.equals("blueLight")){
                 MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
                 flag = true;
