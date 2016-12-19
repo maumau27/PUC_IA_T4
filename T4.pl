@@ -168,6 +168,8 @@ atualizar_energia(X)	:-	energia(E), retract(energia(E)), assert(energia(X)).
 
 atualizar_estado(X)	:-	estado(E), retract(estado(E)), assert(estado(X)).
 
+observar(X, Y)		:-	not( observado(X, Y) ), assert( observado(X, Y) ).
+
 adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
 
 limpa_proximo_passo() :- findall(_,retract(proximo_passo(_,_,_)),_).
