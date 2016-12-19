@@ -1,10 +1,10 @@
 package prolog;
 
 public class PrologCellDecidions {
-	int x = 0;
-	int y = 0;
-	int o = 0;
-	Commands cmd;
+	public int x = 0;
+	public int y = 0;
+	public int o = 0;
+	public Commands cmd;
 	
 	public PrologCellDecidions( int x , int y , int o , String tipo ) {
 		this.x = x;

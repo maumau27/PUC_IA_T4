@@ -7,14 +7,14 @@ import java.util.Map;
 
 import org.jpl7.*;
 
-public class Prolog {
-	public static Prolog 		prolog = null;
+public class MyProlog {
+	public static MyProlog 		prolog = null;
 	public static PrologState	state;
 	
 	public static Commands lastCommand;
 
 	
-	private Prolog(){
+	private MyProlog(){
 		Query query;
 		query = new Query("consult", new Term[] {new Atom("T2.pl")});
 		System.out.println("consult " + (query.hasSolution() ? "succeeded" : "failed"));
@@ -22,7 +22,7 @@ public class Prolog {
 	}
 
 	public static Query doQuery(String string ) {
-		return Prolog.doQuery(string, false );
+		return MyProlog.doQuery(string, false );
 	}
 	
 	public static Query doQuery(String string , boolean failAllowed ) {

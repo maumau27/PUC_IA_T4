@@ -7,7 +7,6 @@ import org.jpl7.Term;
 
 import data.Singletons;
 import dataTypes.Cell;
-import user_interface.EffectType;
 
 abstract public class PrologInterface {
 
@@ -29,7 +28,7 @@ abstract public class PrologInterface {
 				break;
 		
 			case POSITION:
-				query = Prolog.doQuery("posicao(X,Y)" );	
+				query = MyProlog.doQuery("posicao(X,Y)" );	
 				solution = query.allSolutions();
 				x = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
 				y = java.lang.Integer.parseInt( String.valueOf(solution[0].get("Y")) );	
@@ -39,14 +38,14 @@ abstract public class PrologInterface {
 				break;
 				
 			case DIRECTION:
-				query = Prolog.doQuery("orientacao(X)" );	
+				query = MyProlog.doQuery("orientacao(X)" );	
 				solution = query.allSolutions();
 				
 				Singletons.heroDirection = Translations.getJavaDirection( String.valueOf(solution[0].get("X")) );
 				break;
 				
 			case MAP:
-				query = Prolog.doQuery("certeza( ( X , Y ), O )" );	
+				query = MyProlog.doQuery("certeza( ( X , Y ), O )" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
@@ -56,7 +55,7 @@ abstract public class PrologInterface {
 					Singletons.gameGrid.getCell(x, y).frontier = false;
 				}	
 							
-				query = Prolog.doQuery("fronteira(X,Y)" );	
+				query = MyProlog.doQuery("fronteira(X,Y)" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
@@ -65,7 +64,7 @@ abstract public class PrologInterface {
 					Singletons.gameGrid.getCell(x, y).frontier = true;
 				}	
 				
-				query = Prolog.doQuery("consumido(X,Y)" , true );	
+				query = MyProlog.doQuery("consumido(X,Y)" , true );	
 				solution = query.allSolutions();
 				Cell tCell;
 				for( int i = 0 ; i < solution.length ; i++ ) {
@@ -79,60 +78,27 @@ abstract public class PrologInterface {
 				break;
 				
 			case LIFE:
-				query = Prolog.doQuery("energia(X)" );	
+				query = MyProlog.doQuery("energia(X)" );	
 				solution = query.allSolutions();
 				
 				int newLife = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				if( newLife < Singletons.heroLife ) {
-					Singletons.actorScene.createEffectInTile( EffectType.EXPLOSION_MINE , 10 , Singletons.heroPosition.x , Singletons.heroPosition.y );
-				}
 				Singletons.heroLife = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
 				break;
 				
 			case SCORE:
-				query = Prolog.doQuery("score(X)" );	
+				query = MyProlog.doQuery("score(X)" );	
 				solution = query.allSolutions();
 				
 				Singletons.heroScore = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
 				break;
 				
-			case AMMO:
-				query = Prolog.doQuery("municao(X)" );	
-				solution = query.allSolutions();
-				
-				int newAmmo = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				Singletons.heroAmmo = newAmmo;
-				
-				break;
-				
 			case WATER:
-				query = Prolog.doQuery("total_ouros(X)" );	
+				query = MyProlog.doQuery("total_ouros(X)" );	
 				solution = query.allSolutions();
 				int catched = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				Singletons.waterCatched = Singletons.gameGrid.waterQtd - catched;
 				break;
 				
 			case STATE:
-				query = Prolog.doQuery("terminou(X)" , true );	
-				solution = query.allSolutions();
-				
-				String state = String.valueOf(solution[0].get("X"));
-				
-				switch( state ) {
-					case "nao":
-						break;
-						
-					case "saiu_do_labirinto":
-						Singletons.victory = true;
-						break;
-					
-					case "morreu_para_buraco":
-					case "morreu_para_inimigo":
-						Singletons.death = true;
-						break;
-				}
-
-				
 				break;
 				
 		}
@@ -158,7 +124,7 @@ abstract public class PrologInterface {
 				break;
 		
 			case SENSORS:
-				query = Prolog.doQuery("sensor( (X,Y), (W,Z), O )" );	
+				query = MyProlog.doQuery("sensor( (X,Y), (W,Z), O )" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					System.out.println("Sensor: " 
@@ -170,7 +136,7 @@ abstract public class PrologInterface {
 				break;
 				
 			case POSITION:
-				query = Prolog.doQuery("posicao(X,Y)" );	
+				query = MyProlog.doQuery("posicao(X,Y)" );	
 				solution = query.allSolutions();
 				x = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
 				y = java.lang.Integer.parseInt( String.valueOf(solution[0].get("Y")) );	
@@ -179,7 +145,7 @@ abstract public class PrologInterface {
 				break;
 				
 			case DOUBTS:
-				query = Prolog.doQuery("fronteira(X,Y)" );	
+				query = MyProlog.doQuery("fronteira(X,Y)" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					System.out.println("Fronteira: " 
@@ -188,7 +154,7 @@ abstract public class PrologInterface {
 				break;
 				
 			case KNOWN:
-				query = Prolog.doQuery("certeza( (X,Y), O )" );	
+				query = MyProlog.doQuery("certeza( (X,Y), O )" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					System.out.println("Certeza: " 
@@ -197,31 +163,31 @@ abstract public class PrologInterface {
 				break;
 				
 			case ENERGY:
-				query = Prolog.doQuery("energia( V )" );	
+				query = MyProlog.doQuery("energia( V )" );	
 				solution = query.allSolutions();
 				System.out.println("Energia: " 	+ String.valueOf(solution[0].get("V")) );
 				break;
 				
 			case SCORE:
-				query = Prolog.doQuery("score( V )" );	
+				query = MyProlog.doQuery("score( V )" );	
 				solution = query.allSolutions();
 				System.out.println("Score: " 	+ String.valueOf(solution[0].get("V")) );
 				break;		
 				
 			case AMMO:
-				query = Prolog.doQuery("municao( V )" );	
+				query = MyProlog.doQuery("municao( V )" );	
 				solution = query.allSolutions();
 				System.out.println("Municao: " 	+ String.valueOf(solution[0].get("V")) );
 				break;	
 				
 			case WATER:
-				query = Prolog.doQuery("total_ouros( V )" );	
+				query = MyProlog.doQuery("total_ouros( V )" );	
 				solution = query.allSolutions();
 				System.out.println("Aguas no Mapa: " 	+ String.valueOf(solution[0].get("V")) );
 				break;	
 				
 			case DEBUG:
-				query = Prolog.doQuery("dano_dado( X  )" );	
+				query = MyProlog.doQuery("dano_dado( X  )" );	
 				solution = query.allSolutions();
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					System.out.println("Dano causado: " 

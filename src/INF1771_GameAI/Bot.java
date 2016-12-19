@@ -11,13 +11,13 @@ import INF1771_GameClient.Socket.*;
 
 public class Bot implements Runnable {
 
-	private String name = "INF1771 Bot Example1";
+	private String name = "Megazord";
 	private String host = "atari.icad.puc-rio.br";
 
-	HandleClient client = new HandleClient();
-	Map<Long, PlayerInfo> playerList = new HashMap<Long, PlayerInfo>();
-	List<ShotInfo> shotList = new ArrayList<ShotInfo>();
-	List<ScoreBoard> scoreList = new ArrayList<ScoreBoard>();
+	HandleClient client 				= new HandleClient();
+	Map<Long, PlayerInfo> playerList 	= new HashMap<Long, PlayerInfo>();
+	List<ShotInfo> shotList 			= new ArrayList<ShotInfo>();
+	List<ScoreBoard> scoreList 			= new ArrayList<ScoreBoard>();
 
 	GameAI gameAi = new GameAI();
 
@@ -28,7 +28,7 @@ public class Bot implements Runnable {
 
 	List<String> msg = new ArrayList<String>();
 	double msgSeconds = 0;
-	int timer_interval = 1000;
+	int timer_interval = 100;
 
 	public Bot() {
 		// Set command listener to process commands received from server
@@ -189,6 +189,7 @@ public class Bot implements Runnable {
 					client.sendRequestGameStatus();
 					client.sendRequestUserStatus();
 					client.sendRequestObservation();
+					client.sendColor( 198 , 255 , 0 );
 
 				} else
 					System.out.println("Disconnected");

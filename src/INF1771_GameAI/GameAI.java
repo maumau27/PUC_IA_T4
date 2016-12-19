@@ -1,4 +1,5 @@
 package INF1771_GameAI;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +10,10 @@ import org.jpl7.Term;
 import org.jpl7.fli.Prolog;
 
 import INF1771_GameAI.Map.Position;
-import data.Singletons;
-import prolog.AStar;
-import prolog.AStarPath;
-import prolog.Commands;
-import prolog.PrologCellDecidions;
+
+import data.*;
+import prolog.*;
+import dataTypes.*;
 
 
 public class GameAI
@@ -30,7 +30,7 @@ public class GameAI
         Query query;
         query = new Query("consult", new Term[] {new Atom("T4.pl")});
         System.out.println("consult " + (query.hasSolution() ? "succeeded" : "failed"));
-        Prolog.doQuery("extern_instanciar_tamanho_mapa( " + 59 + "," + 34 + ")");
+        MyProlog.doQuery("extern_instanciar_tamanho_mapa( " + 59 + "," + 34 + ")");
     }
     
     /**
@@ -54,18 +54,18 @@ public class GameAI
 
         if(firstTime == true){
             firstTime = false;
-            Prolog.doQuery("assert( posicao(" + player.x + "," + player.y + ") )");
-            Prolog.doQuery("assert( orientacao( cima ) )" );
-            Prolog.doQuery("assert( energia(" + energy + ") )" );
+            MyProlog.doQuery("assert( posicao(" + player.x + "," + player.y + ") )");
+            MyProlog.doQuery("assert( orientacao( cima ) )" );
+            MyProlog.doQuery("assert( energia(" + energy + ") )" );
         } else {
-            Prolog.doQuery("atualizar_posicao(" + player.x + "," + player.y + ")");
-            Prolog.doQuery("atualizar_orientacao(" dir ")" );
-            Prolog.doQuery("atualizar_energia(" + energy + ")" );
+            MyProlog.doQuery("atualizar_posicao(" + player.x + "," + player.y + ")");
+            MyProlog.doQuery("atualizar_orientacao(" + dir + ")" );
+            MyProlog.doQuery("atualizar_energia(" + energy + ")" );
         }
     }
 
     public String getDirection(){
-        if(this.dir)
+        return null;
     }
 
     /**
@@ -162,14 +162,14 @@ public class GameAI
             } else if(s.equals("steps")){
 
             } else if(s.equals("breeze")){
-                Prolog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "BURACO)" );
+                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "BURACO)" );
             } else if(s.equals("flash")){
-                Prolog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "TELEPORTE)" );
+                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "TELEPORTE)" );
             } else if(s.equals("blueLight")){
-                Prolog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
+                MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
                 flag = true;
             } else if(s.equals("redLight")){
-                Prolog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "ouro)" );
+                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "ouro)" );
                 flag = true;
             } else if(s.equals("greenLight")){
 
@@ -178,10 +178,10 @@ public class GameAI
             }
         }
         if(!flag){
-            Prolog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "nada)" );
+            MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "nada)" );
         }
 
-        Prolog.doQuery("validar_fronteira()" );
+        MyProlog.doQuery("validar_fronteira()" );
 
     }
 
@@ -245,6 +245,8 @@ public class GameAI
         if(cmd == Commands.TURN){
             return "Virar_a_direita";
         }
+        
+        return null;
     }
 
     public void fillNextStepList(){
@@ -255,8 +257,8 @@ public class GameAI
         ArrayList<PrologCellDecidions> cells = new ArrayList<PrologCellDecidions>();        
 
         // Get and store Prolog Solutions
-        Prolog.doQuery("acao(decidir)" );
-        query = Prolog.doQuery("proximo_passo((X,Y),O,T)" , true ); 
+        MyProlog.doQuery("decidir()" );
+        query = MyProlog.doQuery("proximo_passo((X,Y),O,T)" , true ); 
         solution = query.allSolutions();
         for( int i = 0 ; i < solution.length ; i++ ) {
             x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
@@ -342,7 +344,6 @@ public class GameAI
             }
         }
 
-        commandList = bestPathRaw.commandList;
-    
+        commandList = bestPathRaw.commandList;  
     }
 }
