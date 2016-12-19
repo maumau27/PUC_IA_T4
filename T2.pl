@@ -10,15 +10,21 @@
 :-	dynamic municao/1.
 :-	dynamic energia/1.
 :- 	dynamic	fronteira/2.
-:-  dynamic certeza/2.
+:-	dynamic certeza/2.
 :-	dynamic observado/2.
 :-	dynamic esta_atirando/1.
+:-	dynamic estado/1.
 
 :- 	dynamic consumido/2.
 
-:- dynamic debuga/4.
+:-	dynamic debuga/4.
 
 terminou(nao).
+estado(inicio).
+
+decidir() :-	estado( E ) , decidir( E ).
+
+decidir(inicio) :-	atualizar_estado(explorar), decidir().
 
 decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
 decidir() :-	posicao(X, Y), certeza( ( X , Y ) , ouro ) , acao(pegar_objeto), decidir(), !.
@@ -156,45 +162,24 @@ mod(X, Y) :- (X < 0, Y is (-X) , !) ; (Y is X , !).
 
 atualizar_posicao(X, Y) :-	posicao(Z, W), retract(posicao(Z, W)), assert(posicao(X, Y)).
 
-atualizar_orientacao(X) :-	orientacao(X), retract(orientacao(X)), assert(orientacao(X)).
+atualizar_orientacao(X) :-	orientacao(E), retract(orientacao(E)), assert(orientacao(X)).
 
-atualizar_energia(X)	:-	retract(energia(_)), assert(energia(X)).
+atualizar_energia(X)	:-	energia(E), retract(energia(E)), assert(energia(X)).
+
+atualizar_estado(X)	:-	estado(E), retract(estado(E)), assert(estado(X)).
 
 adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
 
 limpa_proximo_passo() :- findall(_,retract(proximo_passo(_,_,_)),_).
 
-encontrar_mais_proximo() :-	findall(_,menor_distancia(),_), !.
-encontrar_mais_proximo( Objeto ) :-	findall(_,menor_distancia( Objeto ),_), !.
+encontrar_mais_proximo() :-			findall(_,menor_distancia(),_), !.
+encontrar_mais_proximo( Objeto ) :-		findall(_,menor_distancia( Objeto ),_), !.
 encontrar_mais_proximo( Objeto, Tipo ) :-	findall(_,menor_distancia( Objeto, Tipo ),_), !.
 
 menor_distancia() 			:-	fronteira( X , Y ) , posicao(Z, W), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto ) 		:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
 menor_distancia( Objeto, mover ) 	:-	sensor( ( _ , _ ) , ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
 menor_distancia( Objeto, atirar ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , atirar ).
-
-mover(Z,W)		:- orientacao(direita), posicao(X, Y), Z is X + 1, W is Y, eh_no_mapa(Z, W), atualizar_posicao(Z, W), !.
-mover(Z,W)		:- orientacao(esquerda), posicao(X, Y), Z is X - 1, W is Y, eh_no_mapa(Z, W), atualizar_posicao(Z, W), !.
-mover(Z,W)		:- orientacao(cima), posicao(X, Y), Z is X, W is Y + 1, eh_no_mapa(Z, W), atualizar_posicao(Z, W), !.
-mover(Z,W)		:- orientacao(baixo), posicao(X, Y), Z is X, W is Y - 1, eh_no_mapa(Z, W), atualizar_posicao(Z, W), !.
-
-reduzir_total_ouros()	:-	total_ouros( O ) , retract( total_ouros(_) ) , K is O - 1 , assert( total_ouros( K ) ).
-
-teleporta()				:- tamanho_mapa( Tx , Ty ) , Z is random( Tx ) , W is random( Ty ) , atualizar_posicao( Z , W ).
-
-termina(Objeto) 		:- retract( terminou(_) ) , assert( terminou(Objeto) ).
-
-adiciona_a_score(X)		:- score(Y), W is Y + X, findall(_,retract(score(_)),_), assert(score(W)).
-
-remove_municao()		:-	municao(Y), W is Y - 1, retract(municao(_)), assert(municao(W)), !.
-
-recuperar_vida()		:- energia(Y), W is Y + 20, (W =< 100 ; W is 100), atualizar_energia( W ).
-
-tomar_dano(X)			:-	energia(Y), W is Y - X, atualizar_energia( W ), adiciona_a_score( -X ), ( testar_morte() ; true ).
-
-testar_morte()			:-	energia(W), W =< 0, adiciona_a_score( -1000 ), termina( morreu_para_inimigo ), !.
-
-
 
 % PARA COMUNICAÇÃO COM O JAVA
 
