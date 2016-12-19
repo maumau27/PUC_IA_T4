@@ -20,18 +20,18 @@
 
 terminou(nao).
 
-acao(decidir) :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
-acao(decidir) :-	posicao(X, Y), certeza( ( X , Y ) , ouro ) , acao(pegar_objeto), acao(decidir), !.
-acao(decidir) :-	energia(V), V =< 50, ( posicao(X, Y), certeza( ( X , Y ) , power_up ) , acao(pegar_objeto) , acao(decidir) ; ( certeza( ( _ , _ ) , power_up ) , limpa_proximo_passo() , findall(_, encontrar_mais_proximo(power_up) ,_ ) , !) ).
-acao(decidir) :-	agente_olhando_para( X , Y ) , fronteira( X , Y ) , limpa_proximo_passo() , adiciona_proximo_passo((X, Y), 1 , mover ) , !.
-acao(decidir) :-	( fronteira( _ , _ ) , limpa_proximo_passo(), encontrar_mais_proximo() ), !.
-acao(decidir) :-	sensor( ( _ , _ ) , ( _ , _ ) , inimigo(_,_)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) , mover ) , !.
-acao(decidir) :-	certeza( ( _ , _ ) , inimigo(_,_) ), esta_atirando(sim), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
-acao(decidir) :-	certeza( ( _ , _ ) , inimigo(_,_) ), municao(X), X >= 3, not(esta_atirando(sim)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
-acao(decidir) :-	certeza( ( _ , _ ) , inimigo(_,_) ), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) ) , !.
-acao(decidir) :-	score(X), X > 1500, certeza( (Z, W) , saida ), limpa_proximo_passo(), adiciona_proximo_passo((Z, W), 0 , sair ) , ! .
-acao(decidir) :-	sensor( ( _ , _ ) , ( _ , _ ) , teleporte), limpa_proximo_passo(), encontrar_mais_proximo( teleporte , mover ) , !.
-acao(decidir) :-	limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
+decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
+decidir() :-	posicao(X, Y), certeza( ( X , Y ) , ouro ) , acao(pegar_objeto), decidir(), !.
+decidir() :-	energia(V), V =< 50, ( posicao(X, Y), certeza( ( X , Y ) , power_up ) , acao(pegar_objeto) , decidir() ; ( certeza( ( _ , _ ) , power_up ) , limpa_proximo_passo() , findall(_, encontrar_mais_proximo(power_up) ,_ ) , !) ).
+decidir() :-	agente_olhando_para( X , Y ) , fronteira( X , Y ) , limpa_proximo_passo() , adiciona_proximo_passo((X, Y), 1 , mover ) , !.
+decidir() :-	( fronteira( _ , _ ) , limpa_proximo_passo(), encontrar_mais_proximo() ), !.
+decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , inimigo(_,_)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) , mover ) , !.
+decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), esta_atirando(sim), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
+decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), municao(X), X >= 3, not(esta_atirando(sim)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
+decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) ) , !.
+decidir() :-	score(X), X > 1500, certeza( (Z, W) , saida ), limpa_proximo_passo(), adiciona_proximo_passo((Z, W), 0 , sair ) , ! .
+decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , teleporte), limpa_proximo_passo(), encontrar_mais_proximo( teleporte , mover ) , !.
+decidir() :-	limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
 
 agente_olhando_para(X, Y) :-	orientacao(cima), posicao(Z, W), X is Z, Y is W + 1, (eh_no_mapa(X, Y) ; write('Parede')), !.
 agente_olhando_para(X, Y) :-	orientacao(baixo), posicao(Z, W), X is Z, Y is W - 1, (eh_no_mapa(X, Y) ; write('Parede')), !.
