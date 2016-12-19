@@ -250,22 +250,25 @@ public class Bot implements Runnable {
 	private void DoDecision() {
 		String decision = gameAi.GetDecision();
 
-		if (decision.equals("virar_direita"))
+		if (decision.equals("turn_right")) {
 			client.sendTurnRight();
-		else if (decision.equals("virar_esquerda"))
+		}
+		else if (decision.equals("turn_left")) {
 			client.sendTurnLeft();
-		else if (decision.equals("andar"))
+		}
+		else if (decision.equals("move_forward")) {
 			client.sendForward();
-		else if (decision.equals("atacar"))
-			client.sendShoot();
-		else if (decision.equals("pegar_ouro"))
-			client.sendGetItem();
-		else if (decision.equals("pegar_anel"))
-			client.sendGetItem();
-		else if (decision.equals("pegar_powerup"))
-			client.sendGetItem();
-		else if (decision.equals("andar_re"))
+		}
+		else if (decision.equals("move_backward")) {
 			client.sendBackward();
+		}
+		else if (decision.equals("fire")) {
+			client.sendShoot();
+		}
+		else if (decision.equals("pickup")) {
+			client.sendGetItem();
+		}
+
 
 		client.sendRequestUserStatus();
 		client.sendRequestObservation();
@@ -288,8 +291,13 @@ public class Bot implements Runnable {
 			msgSeconds += timer_interval;
 
 			client.sendRequestGameStatus();
-			if (gameStatus.equals("Game"))
-				DoDecision();
+			
+
+			if (gameStatus.equals("Game")) {
+				System.out.println("DECISION: " + gameStatus );
+				client.sendTurnLeft();
+				//DoDecision();
+			}
 			else if (msgSeconds >= 5000) {
 
 				System.out.println(gameStatus);

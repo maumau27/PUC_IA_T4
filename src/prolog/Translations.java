@@ -4,48 +4,30 @@ import dataTypes.CellType;
 
 // Classe que faz tradução de alguns termos entre JAVA , PROLOG e HUMANO
 public class Translations {
-	public static String getCommandString( Commands cmd ) {
+	
+	public static String getGameAICommandString( Commands cmd ) {
 		String msg = "";
 		switch( cmd ) {
-		case TURN:
-			msg = "TURN";
+		case TURN_RIGHT:
+			msg = "turn_right";
 			break;
-		case MOVE:
-			msg = "MOVE";
+		case TURN_LEFT:
+			msg = "turn_left";
 			break;
+		case MOVE_FORWARD:
+			msg = "move_forward";
+			break;
+		case MOVE_BACKWARD:
+			msg = "move_backward";
+			break;			
 		case PICKUP:
-			msg = "PICK UP";
+			msg = "pickup";
 			break;
 		case FIRE:
-			msg = "FIRE";
+			msg = "fire";
 			break;
 		case EXIT:
-			msg = "EXIT";
-			break;
-		}
-		
-		return msg;
-	}
-	
-	
-	
-	public static String getPrologCommandString( Commands cmd ) {
-		String msg = "";
-		switch( cmd ) {
-		case TURN:
-			msg = "virar_a_direita";
-			break;
-		case MOVE:
-			msg = "mover_para_frente";
-			break;
-		case PICKUP:
-			msg = "pegar_objeto";
-			break;
-		case FIRE:
-			msg = "atirar";
-			break;
-		case EXIT:
-			msg = "subir";
+			msg = "exit";
 			break;
 		}
 		

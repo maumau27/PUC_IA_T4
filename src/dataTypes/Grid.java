@@ -2,6 +2,8 @@ package dataTypes;
 
 import java.util.ArrayList;
 
+import data.Singletons;
+
 
 class Cluster {
 	public ArrayList<Cell> cells;
@@ -66,6 +68,7 @@ public class Grid {
 	public IVector2D cellDimensions = new IVector2D( 20 , 20 );
 	
 	public Grid( int rows , int cols ) {
+		this.cells = new ArrayList<ArrayList<Cell>>();
 		this.rows = rows;
 		this.cols = cols;
 		

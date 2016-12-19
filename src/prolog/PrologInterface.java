@@ -21,11 +21,6 @@ abstract public class PrologInterface {
 				PrologInterface.updateFromProlog( UpdateTypes.POSITION );
 				PrologInterface.updateFromProlog( UpdateTypes.DIRECTION );
 				PrologInterface.updateFromProlog( UpdateTypes.MAP );
-				PrologInterface.updateFromProlog( UpdateTypes.LIFE );
-				PrologInterface.updateFromProlog( UpdateTypes.SCORE );
-				PrologInterface.updateFromProlog( UpdateTypes.AMMO );
-				PrologInterface.updateFromProlog( UpdateTypes.WATER );
-				PrologInterface.updateFromProlog( UpdateTypes.STATE );
 				break;
 		
 			case POSITION:
@@ -78,30 +73,7 @@ abstract public class PrologInterface {
 				}	
 				
 				break;
-				
-			case LIFE:
-				query = MyProlog.doQuery("energia(X)" );	
-				solution = query.allSolutions();
-				
-				int newLife = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				Singletons.heroLife = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				break;
-				
-			case SCORE:
-				query = MyProlog.doQuery("score(X)" );	
-				solution = query.allSolutions();
-				
-				Singletons.heroScore = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				break;
-				
-			case WATER:
-				query = MyProlog.doQuery("total_ouros(X)" );	
-				solution = query.allSolutions();
-				int catched = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				break;
-				
-			case STATE:
-				break;
+			
 				
 		}
 	}

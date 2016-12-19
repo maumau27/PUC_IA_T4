@@ -13,7 +13,7 @@ public class PrologCellDecidions {
 		
 		switch( tipo ) {
 			case "mover":
-				this.cmd = Commands.MOVE;
+				this.cmd = Commands.MOVE_FORWARD;
 				break;
 				
 			case "sair":

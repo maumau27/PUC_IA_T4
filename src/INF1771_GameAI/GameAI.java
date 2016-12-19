@@ -24,13 +24,19 @@ public class GameAI
     long score = 0;
     int energy = 0;
     boolean firstTime = true;
+    
     ArrayList<Commands> commandList;
+    
 
     public GameAI(){
         Query query;
         query = new Query("consult", new Term[] {new Atom("T4.pl")});
         System.out.println("consult " + (query.hasSolution() ? "succeeded" : "failed"));
-        MyProlog.doQuery("extern_instanciar_tamanho_mapa( " + 59 + "," + 34 + ")");
+        MyProlog.doQuery("extern_instanciar_tamanho_mapa( " + Singletons.gridSize.x + "," + Singletons.gridSize.y + ")");
+        
+        // Java State
+        this.commandList = new ArrayList<Commands>();
+        Singletons.gameGrid = new Grid( Singletons.gridSize.x , Singletons.gridSize.y );
     }
     
     /**
@@ -158,7 +164,8 @@ public class GameAI
         for (String s : o)
         {
             if(s.equals("blocked")){
-            	
+            	Position pos = this.NextPosition();
+        		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
             } else if(s.equals("steps")){
 
             } else if(s.equals("breeze")){
@@ -169,7 +176,7 @@ public class GameAI
                 MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
                 flag = true;
             } else if(s.equals("redLight")){
-                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "ouro)" );
+                MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "ouro)" );
                 flag = true;
             } else if(s.equals("greenLight")){
 
@@ -182,6 +189,9 @@ public class GameAI
         }
 
         MyProlog.doQuery("validar_fronteira()" );
+        
+        
+        PrologInterface.updateFromProlog( UpdateTypes.ALL );
 
     }
 
@@ -199,54 +209,23 @@ public class GameAI
      */
     public String GetDecision()
     {
-
-        if(commandList.size() == 0)
+    	
+    	// Get Steps 
+        if( this.commandList.size() == 0 ) {
             fillNextStepList();
-
-        Commands cmd = commandList.get(0);
-
-        commandList.remove(0);
-
-        return translator(cmd);
-
-    	/*int  n = rand.nextInt(8);
-    	switch(n){
-     	case 0:
-            return "virar_direita";
-    	case 1:
-            return "virar_esquerda";
-    	case 2:
-            return "andar";
-    	case 3:
-            return "atacar";
-    	case 4:
-            return "pegar_ouro";
-    	case 5:
-            return "pegar_anel";
-    	case 6:
-            return "pegar_powerup";
-    	case 7:
-            return "andar_re";
-	    }
-
-    	return "";*/
-    }
-
-    public String translator(Commands cmd){
-        if(cmd == Commands.FIRE){
-            return "Atirar";
         }
-        if(cmd == Commands.PICKUP){
-            return "Pegar_objeto";
+
+        // Do Steps
+        if( this.commandList.size() > 0 ) {
+            Commands cmd = commandList.get(0);
+
+            commandList.remove(0);
+
+            return Translations.getGameAICommandString(cmd);
+        } 
+        else {
+        	return "";
         }
-        if(cmd == Commands.MOVE){
-            return "Mover_para_frente";
-        }
-        if(cmd == Commands.TURN){
-            return "Virar_a_direita";
-        }
-        
-        return null;
     }
 
     public void fillNextStepList(){
@@ -274,13 +253,11 @@ public class GameAI
         // Get paths to cells
         ArrayList<AStarPath> pathList = new ArrayList<AStarPath>();
         AStarPath       newPath = null;
-        AStarPath       bestPathClustered = null;
 
-        
         boolean repeatFlag = false;
         for( PrologCellDecidions cell : cells ) {
             switch( cell.cmd ) {                
-                case MOVE:
+                case MOVE_FORWARD:
                 case FIRE:
                 case EXIT:
                     if( cell.x == Singletons.heroPosition.x && cell.y == Singletons.heroPosition.y ) {
@@ -311,39 +288,18 @@ public class GameAI
         }
     
         
-        // Adjust cost to considerate cell Clustering       
-        bestPathClustered = null;   
-        Singletons.gameGrid.calculateClustering();  
+        // Find Best Path
+        AStarPath   bestPathRaw = pathList.get(0);
+        pathList.remove(0);       
         for( AStarPath aPath : pathList ) {
-            aPath.clusteredCost = aPath.cost - ( Singletons.gameGrid.getCell( aPath.destiny.x , aPath.destiny.y ).clusterWeight * 2 );
-            
-            if( bestPathClustered == null ) {
-                bestPathClustered = aPath;
-            } else if( bestPathClustered.clusteredCost > aPath.clusteredCost ) {
-                bestPathClustered = aPath;
+            if( aPath.cost >= bestPathRaw.cost ) {
+            	continue;
+            }
+            else {
+            	 bestPathRaw = aPath;
             }
         }
         
-        
-        // Use all aPaths that arent the bestClustered path as middleway to the bestCluestered Path
-        AStarPath   bestPathRaw = bestPathClustered;
-        pathList.remove( bestPathClustered );
-        
-        for( AStarPath aPath : pathList ) {
-            if( aPath.cost >= bestPathClustered.cost ) continue;
-            
-            newPath = null;
-            newPath = AStar.getPath( aPath.destiny , aPath.destinyDirection , bestPathClustered.destiny );
-            
-            if( newPath != null ) {
-                aPath.addToPath( newPath );
-            }
-            
-            if( bestPathRaw.cost >= aPath.cost - newPath.clusterCellsCleared ) {
-                bestPathRaw = aPath;
-            }
-        }
-
         commandList = bestPathRaw.commandList;  
     }
 }

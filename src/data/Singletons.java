@@ -5,6 +5,9 @@ import dataTypes.*;
 public class Singletons {
 	public static int		debugLevel 			= 0;
 	
+	// Map Size
+	public static IVector2D gridSize		= new IVector2D( 59 , 34 );
+	
 	// Sync with PROLOG
 	public static Grid 		gameGrid;
 	public static int 		heroLife		= 100;

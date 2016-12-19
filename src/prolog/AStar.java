@@ -81,10 +81,10 @@ public class AStar {
 			aspath.cost++;
 			
 			for( int j = 0 ; j < AStar.getTurnCost( tCell.ASData.direction , cCell.ASData.direction ) ; j++ ) {
-				aspath.commandList.add( Commands.TURN );
+				aspath.commandList.add( Commands.TURN_RIGHT );
 				aspath.cost++;
 			}
-			aspath.commandList.add( Commands.MOVE );
+			aspath.commandList.add( Commands.MOVE_FORWARD );
 		}
 		
 		
