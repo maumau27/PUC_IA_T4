@@ -109,7 +109,7 @@ public class Translations {
 		
 		switch( dir ) {
 		
-			case 1:
+			case 3:
 				msg = "cima";
 				break;
 				
@@ -117,7 +117,7 @@ public class Translations {
 				msg = "direita";
 				break;
 
-			case 3:
+			case 1:
 				msg = "baixo";
 				break;
 				
@@ -131,11 +131,11 @@ public class Translations {
 	
 	public static int getJavaDirection( String str ) {
 		switch( str ) {
-		case "cima":
+		case "baixo":
 			return 1;
 		case "direita":
 			return 2;
-		case "baixo":
+		case "cima":
 			return 3;
 		case "esquerda":
 			return 4;

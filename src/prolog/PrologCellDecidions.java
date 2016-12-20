@@ -1,5 +1,6 @@
 package prolog;
 
+
 public class PrologCellDecidions {
 	public int x = 0;
 	public int y = 0;
@@ -13,7 +14,7 @@ public class PrologCellDecidions {
 		
 		switch( tipo ) {
 			case "mover":
-				this.cmd = Commands.MOVE_FORWARD;
+				this.cmd = Commands.MOVE_TO;
 				break;
 				
 			case "sair":
@@ -29,4 +30,23 @@ public class PrologCellDecidions {
 				break;					
 		}
 	}
+	
+	// Compare two Manhattan Distances
+	public int compareManhattan( PrologCellDecidions another ) {
+	    final int BEFORE = -1;
+	    final int EQUAL = 0;
+	    final int AFTER = 1;
+	
+
+	    if( this.o == another.o ) {
+	    		return EQUAL;
+	    }
+	    else  if( this.o > another.o ) {
+	    	return AFTER;
+	    }
+	    else {
+	    	return BEFORE;
+	    }
+	}
+	
 }

@@ -36,6 +36,7 @@ public class GameAI
         
         // Java State
         this.commandList = new ArrayList<Commands>();
+
         Singletons.gameGrid = new Grid( Singletons.gridSize.y , Singletons.gridSize.x );
     }
     
@@ -50,6 +51,7 @@ public class GameAI
      */
     public void SetStatus(int x, int y, String dir, String state, long score, int energy)
     {
+    // É a primeira coisa que o Bot faz
         player.x = x;
         player.y = y;
         this.dir = dir.toLowerCase();
@@ -57,7 +59,7 @@ public class GameAI
         this.state = state;
         this.score = score;
         this.energy = energy;
-
+        
     	String prologDir;
     	switch( dir.toLowerCase() ) {
     	case "south":
@@ -78,11 +80,6 @@ public class GameAI
         MyProlog.doQuery("atualizar_energia(" + energy + ")" );
         
         PrologInterface.updateFromProlog( UpdateTypes.POSITION );
-        PrologInterface.updateFromProlog( UpdateTypes.DIRECTION ); 
-    }
-
-    public String getDirection(){
-        return null;
     }
 
     /**
@@ -165,7 +162,7 @@ public class GameAI
     
     
     public void prologObservation(List<String> o) {
-        boolean flag 		= false;
+        boolean clearFlag = true;
 
         MyProlog.doQuery( "observar(" +player.x +"," +player.y +")" ); 
         
@@ -177,10 +174,9 @@ public class GameAI
             {
                 if(s.equals("blocked")){
                 	Position pos = this.NextPosition();
-                	if(pos.x >= 0 && pos.x < 59 &&
-                			pos.y >= 0 && pos.y < 34)
+                	if(pos.x >= 0 && pos.x < 59 && pos.y >= 0 && pos.y < 34) {
                 		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
-            		flag = true;
+                	}
                 } else if(s.equals("steps")){
 
                 } else if(s.equals("breeze")){
@@ -188,13 +184,16 @@ public class GameAI
                 } else if(s.equals("flash")){
                     MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "teleporte)" );
                 } else if(s.equals("blueLight")){
-                	this.commandList.clear();
-					this.commandList.add(Commands.PICKUP);
+                    this.commandList.clear();
+                    this.commandList.add(Commands.PICKUP);
                     MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "ouro)" );
-                    flag = true;
+                    clearFlag = false;
                 } else if(s.equals("redLight")){
                     MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
-                    flag = true;
+                    clearFlag = false;
+                } else if(s.equals("redLight")){
+                    MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
+                    clearFlag = true;
 	            } else if (s.indexOf("enemy#") > -1) {
 					try{
 						int steps = Integer.parseInt(s.replaceFirst("enemy#", ""));
@@ -212,16 +211,15 @@ public class GameAI
         }
         
         
-        
         // Finalize the code
-        if(!flag){
+        if( clearFlag == true ){
             MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "nada)" );
         }
         MyProlog.doQuery("validar_fronteiras()" );
         PrologInterface.updateFromProlog( UpdateTypes.ALL );
     }
 
-
+    
 	public Position NextPositionAhead(int steps) {
 		Position ret = null;
 		if (dir.equals("north"))
@@ -234,8 +232,9 @@ public class GameAI
 			ret = new Position(player.x - steps, player.y);
 
 		return ret;
-	}
-
+	}    
+    
+    
     /**
      * Observations received
      * @param o	 list of observations
@@ -259,7 +258,9 @@ public class GameAI
      */
     public String GetDecision()
     {
-    	
+    	if( Singletons.debugLevel > 0 ) {
+    		System.out.println("GET DECISION");
+    	}
     	// Get Steps 
         if( this.commandList.size() == 0 ) {
             fillNextStepList();
@@ -268,10 +269,19 @@ public class GameAI
         // Do Steps
         if( this.commandList.size() > 0 ) {
             Commands cmd = commandList.get(0);
+            String cmdAI;
+            
+            if( Singletons.debugLevel > 0 ) {
+            	System.out.println("Proximos comandos");
+	            for( Commands c : commandList ) {
+	            	System.out.println( c );
+	            }
+            }
 
             commandList.remove(0);
 
-            return Translations.getGameAICommandString(cmd);
+            cmdAI = Translations.getGameAICommandString(cmd);  
+            return cmdAI;
         } 
         else {
         	return "";
@@ -289,33 +299,46 @@ public class GameAI
         MyProlog.doQuery("decidir()" );
         query = MyProlog.doQuery("proximo_passo((X,Y),O,T)" , true ); 
         solution = query.allSolutions();
+        IVector2D hPos = new IVector2D( Singletons.heroPosition.x , Singletons.heroPosition.y );
         
-        System.out.println("Prolog Decisions:");
+        if( Singletons.debugLevel > 0 ) {
+        	System.out.println("Prolog Suggestions:");
+        }
         for( int i = 0 ; i < solution.length ; i++ ) {
             x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
             y = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Y")) );
-            o = java.lang.Integer.parseInt( String.valueOf(solution[i].get("O")) );
+            o = AStar.getManhattan( hPos , new IVector2D( x , y ) );
             
             cells.add( new PrologCellDecidions(x,y,o,String.valueOf(solution[i].get("T"))) );
             
-            
-            System.out.println( "Prolog CMD: x: " + x + " | y: " + y + " | T : " + String.valueOf(solution[i].get("T")) );
+            if( Singletons.debugLevel > 0 ) {
+            	System.out.println( "Prolog CMD: x: " + x + " | y: " + y + " | T : " + String.valueOf(solution[i].get("T")) );
+            }
         }
         
+        // Sort Prolog Suggestions
+        if( cells.size() > Singletons.maxAStar ) {
+        	cells.sort( (a,b) -> a.compareManhattan(b) );	
+        }
         
         // Get paths to cells
         ArrayList<AStarPath> pathList = new ArrayList<AStarPath>();
         AStarPath       newPath = null;
 
         boolean repeatFlag = false;
-        for( PrologCellDecidions cell : cells ) {
+        int maxAstar = cells.size();
+        if( maxAstar > Singletons.maxAStar ) {
+        	maxAstar = Singletons.maxAStar;
+        }
+        
+        for( int i = 0 ; i < maxAstar ; i++ ) {
+        	PrologCellDecidions cell = cells.get(i);
             switch( cell.cmd ) {                
-                case MOVE_FORWARD:
+                case MOVE_TO:
                 case FIRE:
                 case EXIT:
                     if( cell.x == Singletons.heroPosition.x && cell.y == Singletons.heroPosition.y ) {
                         newPath = null;
-                        newPath = AStar.getPath( new IVector2D(cell.x,cell.y));
                     } else {
                         newPath = AStar.getPath( new IVector2D(cell.x,cell.y));
                     }
@@ -324,6 +347,7 @@ public class GameAI
                         pathList.add(newPath);  
                     }
                     
+                    // TODO: Atirar 
                     if( cell.cmd == Commands.FIRE ) {
                         newPath.commandList.remove( newPath.commandList.size() - 1 );
                         newPath.commandList.add( Commands.FIRE );
@@ -357,9 +381,10 @@ public class GameAI
 	            }
 	        }
 	        
-	        System.out.println("AStar Decisions:");
-	        System.out.println( bestPathRaw.origin.x + " , " + bestPathRaw.origin.y + " | " + bestPathRaw.destiny.x + " , " + bestPathRaw.destiny.y );
-	        
+	        if( Singletons.debugLevel > 0 ) {
+		        System.out.println("AStar Decision:");
+		        System.out.println( bestPathRaw.origin.x + " , " + bestPathRaw.origin.y + " | " + bestPathRaw.destiny.x + " , " + bestPathRaw.destiny.y );
+	        }
 	        this.commandList = bestPathRaw.commandList;  
         }
     }

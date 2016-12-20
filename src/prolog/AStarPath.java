@@ -16,9 +16,6 @@ public class AStarPath {
 	public int			destinyDirection = 0;
 	
 	public double 		cost = 0;
-	public double		clusteredCost = 0;
-	
-	public int			clusterCellsCleared = 0;
 	
 	public int 			cellsDiscovered;
 	public int			cellsWalked;
@@ -32,6 +29,5 @@ public class AStarPath {
 		this.destinyDirection	= aPath.destinyDirection;
 		
 		this.cost += aPath.cost;
-		this.clusteredCost = this.cost + aPath.clusteredCost;
 	}
 }

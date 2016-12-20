@@ -180,6 +180,49 @@ public class Grid {
 		}
 	}
 	
+	
+	public boolean haveCleanShot( Cell shooter , Cell target ) {
+		int increment;
+		Cell start = shooter;
+		Cell end = target;
+		Cell checkedCell;
+		if( shooter.position.x == target.position.x ) {
+			if ( shooter.position.y == target.position.y ) return true;
+			
+			if( shooter.position.y > target.position.y ) {
+				start = target;
+				end = shooter;
+			}
+			
+			int x = start.position.x;
+			for( int y = start.position.y + 1 ; y < end.position.y ; y++ ) {
+				checkedCell = this.getCell(x, y);
+				if( checkedCell.discovered == true && checkedCell.type == CellType.WALL ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		else if ( shooter.position.y == target.position.y ) {
+			if (shooter.position.x == target.position.x ) return true;
+
+			if( shooter.position.x > target.position.x ) {
+				start = target;
+				end = shooter;
+			}
+			
+			int y = start.position.y;
+			for( int x = start.position.x + 1 ; x < end.position.x ; x++ ) {
+				checkedCell = this.getCell(x, y);
+				if( checkedCell.discovered == true && checkedCell.type == CellType.WALL ) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		return false;
+	}
 
 	public void printGrid() {
 		System.out.print("\nGRID\n");
@@ -188,6 +231,8 @@ public class Grid {
 			System.out.print("\n");
 			for( int x = 0 ; x < cols ; x++ ) {
 				Cell cell = newRow.get(x);
+				
+				// Discovered
 				if( cell.discovered == true ) {
 					String mark;
 					
@@ -203,8 +248,7 @@ public class Grid {
 						
 					default:
 						mark = "?";
-						break;
-						
+						break;			
 					}
 					
 					System.out.print(mark);
@@ -217,6 +261,8 @@ public class Grid {
 				}
 			}	
 		}
+		
+		System.out.print("\n");
 	}
 	
 }

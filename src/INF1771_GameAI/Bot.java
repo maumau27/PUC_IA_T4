@@ -9,10 +9,12 @@ import java.util.Map;
 import INF1771_GameClient.Dto.*;
 import INF1771_GameClient.Socket.*;
 import data.Singletons;
+import prolog.PrintTypes;
+import prolog.PrologInterface;
 
 public class Bot implements Runnable {
 
-	private String name = "Megazord";
+	private String name = "Tachikoma";
 	private String host = "atari.icad.puc-rio.br";
 
 	HandleClient client 				= new HandleClient();
@@ -30,6 +32,8 @@ public class Bot implements Runnable {
 	List<String> msg = new ArrayList<String>();
 	double msgSeconds = 0;
 	int timer_interval = 100;
+	
+	boolean ready = true;	
 
 	public Bot() {
 		// Set command listener to process commands received from server
@@ -58,10 +62,12 @@ public class Bot implements Runnable {
 										gameAi.GetObservations(o);
 									}
 								}
-								else
+								else {
 									gameAi.GetObservationsClean();
-
+								}
+								
 								ready = true;
+								
 							} else if (cmd[0].equals("s")) {
 								if (cmd.length > 1) {
 									gameAi.SetStatus(Integer.parseInt(cmd[1]), Integer.parseInt(cmd[2]), cmd[3], cmd[4],
@@ -93,11 +99,11 @@ public class Bot implements Runnable {
 									if (!gameStatus.equals(cmd[1]))
 										playerList.clear();
 
-									if (!gameStatus.equals(cmd[1])){
+									if (!gameStatus.equals(cmd[1])) {
 										System.out.println("New Game Status: " + cmd[1]);
 										ready = true;
 									}
-
+										
 									gameStatus = cmd[1];
 									time = Long.parseLong(cmd[2]);
 								}
@@ -163,8 +169,6 @@ public class Bot implements Runnable {
 									o.add("hit");
 									gameAi.GetObservations(o);
 									msg.add("you hit " + cmd[1]);
-									
-									//client.sendSay("toma chumbo " + cmd[1] );
 								}
 							} else if (cmd[0].equals("d")) {
 								if (cmd.length > 1) {
@@ -195,8 +199,7 @@ public class Bot implements Runnable {
 					client.sendRequestGameStatus();
 					client.sendRequestUserStatus();
 					client.sendRequestObservation();
-					client.sendColor( 198 , 255 , 0 );
-
+					client.sendColor( Singletons.botColor.r , Singletons.botColor.g , Singletons.botColor.b );
 				} else
 					System.out.println("Disconnected");
 			}
@@ -250,28 +253,37 @@ public class Bot implements Runnable {
 		return String.format("%02d:%02d:%02d", hours, minutes, seconds);
 	}
 
-	
 	/**
 	 * Execute some decision
 	 */
-	boolean ready = true;
 	private void DoDecision() {
-		
 		if(ready){
-			ready = false;
+			 ready = false;
+			 
 			String decision = gameAi.GetDecision();
 	
 			if (decision.equals("turn_right")) {
+				if( Singletons.debugLevel > 0 ) {
+					System.out.println("AI: VIRAR DIREITA");
+				}
 				client.sendTurnRight();
 			}
 			else if (decision.equals("turn_left")) {
+				if( Singletons.debugLevel > 0 ) {
+					System.out.println("AI: VIRAR ESQUERDA");
+				}
 				client.sendTurnLeft();
 			}
 			else if (decision.equals("move_forward")) {
-				System.out.println("PRA FRENTE");
+				if( Singletons.debugLevel > 0 ) {
+					System.out.println("AI: PRA FRENTE");
+				}
 				client.sendForward();
 			}
 			else if (decision.equals("move_backward")) {
+				if( Singletons.debugLevel > 0 ) {
+					System.out.println("AI: PRA TRAZ");
+				}
 				client.sendBackward();
 			}
 			else if (decision.equals("fire")) {
@@ -280,46 +292,10 @@ public class Bot implements Runnable {
 			else if (decision.equals("pickup")) {
 				client.sendGetItem();
 			}
-	
-			/*
-			 * 
-			 * /*Random rand = new Random();
-        public string GetFrase()
-        {
-            String[] sStr = new String[14];
-            sStr[0] = "Aqui é Body Builder B PORRA!";
-            sStr[1] = "Aqui nóis constrói fibra, não é água com músculo.";
-            sStr[2] = "Sabe o que é isso daí? Trapézio descendente é o nome disso aí. ";
-            sStr[3] = "AHHHHHHHHHHHHHHHHHHHHHH..., porra! ";
-            sStr[4] = "Ó o homem ali porra!";
-            sStr[5] = "Bora caralho, você quer ver essa porra velho. ";
-            sStr[6] = "Boraaa, Hora do Show Porra. ";
-            sStr[7] = "É nóis caraio é trapezera buscando caraio!";
-            sStr[8] = "Ajuda o maluco que tá doente. ";
-            sStr[9] = "Eita porra!";
-            sStr[10] = "tá saindo da jaula o monstro! ";
-            sStr[11] = "Negativa Bambam negativa. Eita porra!";
-            sStr[12] = "Vamo monstro! ";
-            sStr[13] = "Biiiirrrrrlllllll!!!!!!!!! ";
-
-            
-
-            int n = rand.Next(0, sStr.Length);
-
-            return sStr[n];
-        }
-        *//*
-			 count++;
-             if (count > 50)
-             {
-                 client.sendSay(GetFrase());
-                 count = 0;
-             }
-	*/
-			client.sendRequestUserStatus();
-			client.sendRequestObservation();
-			
-		}
+		}	
+		
+		client.sendRequestUserStatus();
+		client.sendRequestObservation();		
 	}
 
 	/**
@@ -339,11 +315,22 @@ public class Bot implements Runnable {
 
 			client.sendRequestGameStatus();
 			
+			if( Singletons.glowing == true ) {
+				Singletons.botColor.doStep();
+				client.sendColor( Singletons.botColor.r , Singletons.botColor.g, Singletons.botColor.b );
+			}
+			
 
 			if (gameStatus.equals("Game")) {
 				//client.sendTurnLeft();
 				DoDecision();
-				Singletons.gameGrid.printGrid();
+				
+				if( Singletons.debugLevel > 1 ) {
+					Singletons.gameGrid.printGrid();
+				}
+				if( Singletons.debugLevel > 0 ) {
+					PrologInterface.printFromProlog( PrintTypes.ALL );
+				}
 			}
 			else if (msgSeconds >= 5000) {
 

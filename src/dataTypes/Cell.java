@@ -15,7 +15,7 @@ public class Cell {
 	
 	// Apenas para Consulta
 	public IVector2D 	position = new IVector2D( 0 , 0 );
-	public CellType 	type = CellType.UNKNOWN;
+	public CellType 	type = CellType.CLEAN;
 	
 	// Atualizar com o ProLog
 	public boolean		discovered = false;
@@ -23,6 +23,9 @@ public class Cell {
 	public boolean		destroyed = false;
 	public AStarData	ASData = new AStarData();
 	
+	// Last Tick
+	public long 		tickLastSeen = 0;
+	public long 		tickNextRespaw = 0;
 	
 	public double			clusterWeight;
 	public ArrayList<Cell>	cluster;
@@ -35,7 +38,7 @@ public class Cell {
 	public Cell( int x , int y ) {
 		this.position.x = x;
 		this.position.y = y;
-		this.type = CellType.UNKNOWN;
+		this.type = CellType.CLEAN;
 	}
 	
 
