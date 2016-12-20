@@ -160,13 +160,13 @@ distancia_manhatam((X1,Y1), (X2, Y2), C) :-	mod(X1 - X2, X), mod(Y1 - Y2, Y), C 
 
 mod(X, Y) :- (X < 0, Y is (-X) , !) ; (Y is X , !).
 
-atualizar_posicao(X, Y) :-	( posicao(Z, W), retract(posicao(Z, W)), assert(posicao(X, Y)) ) ; assert(posicao(X, Y)).
+atualizar_posicao(X, Y) :-	( ( posicao(Z, W), retract(posicao(Z, W)), assert(posicao(X, Y)) ) ; assert(posicao(X, Y)) ), !.
 
-atualizar_orientacao(X) :-	( orientacao(E), retract(orientacao(E)), assert(orientacao(X)) ) ; assert(orientacao(X)).
+atualizar_orientacao(X) :-	( ( orientacao(E), retract(orientacao(E)), assert(orientacao(X)) ) ; assert(orientacao(X)) ), !.
 
-atualizar_energia(X)	:-	( energia(E), retract(energia(E)), assert(energia(X)) ) ; assert(energia(X)).
+atualizar_energia(X)	:-	( ( energia(E), retract(energia(E)), assert(energia(X)) ) ; assert(energia(X)) ), !.
 
-atualizar_estado(X)	:-	( estado(E), retract(estado(E)), assert(estado(X)) ) ; assert(estado(X)).
+atualizar_estado(X)	:-	( ( estado(E), retract(estado(E)), assert(estado(X)) ) ; assert(estado(X)) ), !.
 
 observar(X, Y)		:-	not( observado(X, Y) ), assert( observado(X, Y) ).
 
