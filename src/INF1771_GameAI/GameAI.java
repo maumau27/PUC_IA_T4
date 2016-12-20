@@ -211,31 +211,7 @@ public class GameAI
             }
         }
         
-        /*Random rand = new Random();
-        public string GetFrase()
-        {
-            String[] sStr = new String[14];
-            sStr[0] = "Aqui é Body Builder B PORRA!";
-            sStr[1] = "Aqui nóis constrói fibra, não é água com músculo.";
-            sStr[2] = "Sabe o que é isso daí? Trapézio descendente é o nome disso aí. ";
-            sStr[3] = "AHHHHHHHHHHHHHHHHHHHHHH..., porra! ";
-            sStr[4] = "Ó o homem ali porra!";
-            sStr[5] = "Bora caralho, você quer ver essa porra velho. ";
-            sStr[6] = "Boraaa, Hora do Show Porra. ";
-            sStr[7] = "É nóis caraio é trapezera buscando caraio!";
-            sStr[8] = "Ajuda o maluco que tá doente. ";
-            sStr[9] = "Eita porra!";
-            sStr[10] = "tá saindo da jaula o monstro! ";
-            sStr[11] = "Negativa Bambam negativa. Eita porra!";
-            sStr[12] = "Vamo monstro! ";
-            sStr[13] = "Biiiirrrrrlllllll!!!!!!!!! ";
-
-            
-
-            int n = rand.Next(0, sStr.Length);
-
-            return sStr[n];
-        }*/
+        
         
         // Finalize the code
         if(!flag){
