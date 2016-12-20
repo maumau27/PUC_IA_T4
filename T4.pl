@@ -22,11 +22,20 @@
 terminou(nao).
 estado(inicio).
 
+decidir() :-	energia( E ), 60 >= E, atualizar_estado(machucado), decidir().
 decidir() :-	estado( E ) , decidir( E ).
 
 decidir(inicio) :-	atualizar_estado(explorar), decidir().
 
+decidir(explorar) :- agente_olhando_para(X, Y), fronteira(X, Y), adiciona_proximo_passo((X, Y), 1, mover), !.
 decidir(explorar) :- encontrar_mais_proximo(), !.
+decidir(explorar) :- atualizar_estado(rota), decidir().
+
+decidir(rota)	:-	certeza((_,_), ouro), encontrar_mais_proximo(ouro, pegar), !.
+decidir(rota)	:-	atualizar_estado(inicio), decidir().
+
+decidir(machucado)	:-	certeza((_,_), power_up), encontrar_mais_proximo(power_up, pegar), !.
+decidir(machucado)	:-	atualizar_estado(inicio), decidir().
 
 
 %decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
@@ -178,7 +187,7 @@ atualizar_certeza(X, Y, O) :- ( certeza((X, Y), Objeto), not(eh_respawn(Objeto))
 
 observar(X, Y)		:-	not( observado(X, Y) ), assert( observado(X, Y) ).
 
-adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
+adiciona_proximo_passo((X, Y), Custo , Tipo ) :- limpa_proximo_passo(), assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
 
 limpa_proximo_passo() :- findall(_,retract(proximo_passo(_,_,_)),_).
 
