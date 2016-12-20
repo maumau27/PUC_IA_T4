@@ -7,6 +7,7 @@ import org.jpl7.Term;
 
 import data.Singletons;
 import dataTypes.Cell;
+import dataTypes.CellType;
 import prolog.Translations;
 
 abstract public class PrologInterface {
@@ -54,6 +55,11 @@ abstract public class PrologInterface {
 					Singletons.gameGrid.getCell(x, y).discovered = true;
 					Singletons.gameGrid.getCell(x, y).frontier = false;
 					Singletons.gameGrid.getCell(x, y).type = Translations.getJavaCellType(String.valueOf(solution[i].get("O")));
+					
+					if(Translations.getJavaCellType(String.valueOf(solution[i].get("O"))) == CellType.WATER)
+					{
+						System.out.println("agua em :" + x + "," + y);
+					}
 				}	
 							
 				query = MyProlog.doQuery("fronteira(X,Y)" );	
@@ -76,17 +82,6 @@ abstract public class PrologInterface {
 					tCell.destroyed = true;
 				}	
 				
-				query = MyProlog.doQuery("sensor((X,Y), (Z,W),O)" , true );	
-				solution = query.allSolutions();
-				for( int i = 0 ; i < solution.length ; i++ ) {
-					x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
-					y = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Y")) );
-					
-					z = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Z")) );
-					w = java.lang.Integer.parseInt( String.valueOf(solution[i].get("W")) );
-					
-					System.out.println("Sensor ("+x+","+y+") ("+z+","+w+") " + Translations.getJavaCellType(String.valueOf(solution[i].get("O"))));
-				}	
 				break;
 			
 				

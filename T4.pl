@@ -49,8 +49,7 @@ agente_olhando_para(X, Y) :-	orientacao(esquerda), posicao(Z, W), X is Z - 1, Y 
 							
 % Define a certeza do conteudo do local X , Y					
 
-definir_certeza( X , Y , Objeto )	:- findall( _ , retract( certeza( ( X, Y ) , _ ) ) , _ )
-							, ( assert( certeza( ( X, Y ) , Objeto ) ) )
+definir_certeza( X , Y , Objeto )	:- atualizar_certeza(X, Y, Objeto)
 							, ( retract( fronteira( X , Y ) ) ; true )
 							, findall( _ , intern_remover_completamente_sensor_com_alvo( X , Y , Objeto ) , _ ) 
 							, findall( _ , intern_remover_parcialmente_sensor( X , Y , Objeto ) , _ ).
@@ -151,6 +150,8 @@ eh_fronteira( X , Y ) 				:- fronteira( X , Y ).
 
 eh_perigosa( X , Y ) 				:- sensor( (_,_) , (X,Y) , _ ).
 
+eh_respawn( Objeto ) 				:- Objeto = ouro ; Objeto = power_up.
+
 eh_no_mapa(X, Y) 			 		:- tamanho_mapa(A, B), X < A, X >= 0, Y < B, Y >= 0.	
 
 eh_adjacente( X , Y , X2 , Y2 )		:- X2 is X - 1 , Y2 is Y , eh_no_mapa( X2 , Y2 ).
@@ -173,6 +174,8 @@ atualizar_energia(X)	:-	( ( energia(E), retract(energia(E)), assert(energia(X)) 
 
 atualizar_estado(X)	:-	( ( estado(E), retract(estado(E)), assert(estado(X)) ) ; assert(estado(X)) ), !.
 
+atualizar_certeza(X, Y, O) :- ( certeza((X, Y), Objeto), not(eh_respawn(Objeto)), retract(certeza((X, Y), _)), assert(certeza((X,Y), O)), ! ) ; not( certeza((X, Y), _) ), assert(certeza((X, Y), O) ), !.
+
 observar(X, Y)		:-	not( observado(X, Y) ), assert( observado(X, Y) ).
 
 adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
@@ -183,10 +186,10 @@ encontrar_mais_proximo() :-			limpa_proximo_passo(), findall(_,menor_distancia()
 encontrar_mais_proximo( Objeto ) :-		limpa_proximo_passo(), findall(_,menor_distancia( Objeto ),_), !.
 encontrar_mais_proximo( Objeto, Tipo ) :-	limpa_proximo_passo(), findall(_,menor_distancia( Objeto, Tipo ),_), !.
 
-menor_distancia() 			:-	fronteira( X , Y ) , posicao(Z, W), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto ) 		:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto, mover ) 	:-	sensor( ( _ , _ ) , ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto, atirar ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , atirar ).
+menor_distancia() 			:-	fronteira( X , Y ) , posicao(Z, W), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto ) 		:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto, mover ) 	:-	sensor( ( _ , _ ) , ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto, atirar ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , atirar ).
 
 % PARA COMUNICAÇÃO COM O JAVA
 
