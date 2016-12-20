@@ -22,22 +22,25 @@
 terminou(nao).
 estado(inicio).
 
-%decidir() :-	estado( E ) , decidir( E ).
+decidir() :-	estado( E ) , decidir( E ).
 
-%decidir(inicio) :-	atualizar_estado(explorar), decidir().
+decidir(inicio) :-	atualizar_estado(explorar), decidir().
 
-decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
-decidir() :-	posicao(X, Y), certeza( ( X , Y ) , ouro ) , acao(pegar_objeto), decidir(), !.
-decidir() :-	energia(V), V =< 50, ( posicao(X, Y), certeza( ( X , Y ) , power_up ) , acao(pegar_objeto) , decidir() ; ( certeza( ( _ , _ ) , power_up ) , limpa_proximo_passo() , findall(_, encontrar_mais_proximo(power_up) ,_ ) , !) ).
-decidir() :-	agente_olhando_para( X , Y ) , fronteira( X , Y ) , limpa_proximo_passo() , adiciona_proximo_passo((X, Y), 1 , mover ) , !.
-decidir() :-	( fronteira( _ , _ ) , limpa_proximo_passo(), encontrar_mais_proximo() ), !.
-decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , inimigo(_,_)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) , mover ) , !.
-decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), esta_atirando(sim), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
-decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), municao(X), X >= 3, not(esta_atirando(sim)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
-decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) ) , !.
-decidir() :-	score(X), X > 1500, certeza( (Z, W) , saida ), limpa_proximo_passo(), adiciona_proximo_passo((Z, W), 0 , sair ) , ! .
-decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , teleporte), limpa_proximo_passo(), encontrar_mais_proximo( teleporte , mover ) , !.
-decidir() :-	limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
+decidir(explorar) :- encontrar_mais_proximo(), !.
+
+
+%decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
+%decidir() :-	posicao(X, Y), certeza( ( X , Y ) , ouro ) , acao(pegar_objeto), decidir(), !.
+%decidir() :-	energia(V), V =< 50, ( posicao(X, Y), certeza( ( X , Y ) , power_up ) , acao(pegar_objeto) , decidir() ; ( certeza( ( _ , _ ) , power_up ) , limpa_proximo_passo() , findall(_, encontrar_mais_proximo(power_up) ,_ ) , !) ).
+%decidir() :-	agente_olhando_para( X , Y ) , fronteira( X , Y ) , limpa_proximo_passo() , adiciona_proximo_passo((X, Y), 1 , mover ) , !.
+%decidir() :-	( fronteira( _ , _ ) , limpa_proximo_passo(), encontrar_mais_proximo() ), !.
+%decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , inimigo(_,_)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) , mover ) , !.
+%decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), esta_atirando(sim), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
+%decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), municao(X), X >= 3, not(esta_atirando(sim)), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_), atirar ) , !.
+%decidir() :-	certeza( ( _ , _ ) , inimigo(_,_) ), limpa_proximo_passo(), encontrar_mais_proximo( inimigo(_,_) ) , !.
+%decidir() :-	score(X), X > 1500, certeza( (Z, W) , saida ), limpa_proximo_passo(), adiciona_proximo_passo((Z, W), 0 , sair ) , ! .
+%decidir() :-	sensor( ( _ , _ ) , ( _ , _ ) , teleporte), limpa_proximo_passo(), encontrar_mais_proximo( teleporte , mover ) , !.
+%decidir() :-	limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
 
 agente_olhando_para(X, Y) :-	orientacao(cima), posicao(Z, W), X is Z, Y is W - 1, (eh_no_mapa(X, Y) ; write('Parede')), !.
 agente_olhando_para(X, Y) :-	orientacao(baixo), posicao(Z, W), X is Z, Y is W + 1, (eh_no_mapa(X, Y) ; write('Parede')), !.
@@ -47,8 +50,8 @@ agente_olhando_para(X, Y) :-	orientacao(esquerda), posicao(Z, W), X is Z - 1, Y 
 % Define a certeza do conteudo do local X , Y					
 
 definir_certeza( X , Y , Objeto )	:- findall( _ , retract( certeza( ( X, Y ) , _ ) ) , _ )
-							, ( assert( certeza( ( X, Y ) , Objeto ) ) ) 
-							, retract( fronteira( X , Y ) )
+							, ( assert( certeza( ( X, Y ) , Objeto ) ) )
+							, ( retract( fronteira( X , Y ) ) ; true )
 							, findall( _ , intern_remover_completamente_sensor_com_alvo( X , Y , Objeto ) , _ ) 
 							, findall( _ , intern_remover_parcialmente_sensor( X , Y , Objeto ) , _ ).
 							
@@ -61,7 +64,9 @@ intern_remover_parcialmente_sensor( TX , TY , Objeto )				:- ObjetoAlvo \= Objet
 
 % ADICAO DE SENSORES
 
-criar_sensores_em( X , Y , Objeto )		:- eh_adjacente( X , Y , X2 , Y2 ) ,  not( eh_conhecido( X2 , Y2 ) )  ,  not( eh_fronteira( X2 , Y2 ) )  ,  intern_criar_sensor( X , Y , X2 , Y2 , Objeto ).
+criar_sensores_em( X , Y , Objeto )				:- findall(_, intern_criar_sensores_em(X, Y, Objeto), _), !.
+
+intern_criar_sensores_em( X , Y , Objeto )		:- eh_adjacente( X , Y , X2 , Y2 ) ,  not( eh_conhecido( X2 , Y2 ) )  ,  not( eh_fronteira( X2 , Y2 ) )  ,  intern_criar_sensor( X , Y , X2 , Y2 , Objeto ).
 
 intern_criar_sensor( PX , PY , TX , TY , Objeto )	:-	not( sensor( ( PX , PY ) , ( TX , TY ) , Objeto ) ) , assert( sensor( ( PX , PY ) , ( TX , TY ) , Objeto ) ).
 
@@ -174,14 +179,14 @@ adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) 
 
 limpa_proximo_passo() :- findall(_,retract(proximo_passo(_,_,_)),_).
 
-encontrar_mais_proximo() :-			findall(_,menor_distancia(),_), !.
-encontrar_mais_proximo( Objeto ) :-		findall(_,menor_distancia( Objeto ),_), !.
-encontrar_mais_proximo( Objeto, Tipo ) :-	findall(_,menor_distancia( Objeto, Tipo ),_), !.
+encontrar_mais_proximo() :-			limpa_proximo_passo(), findall(_,menor_distancia(),_), !.
+encontrar_mais_proximo( Objeto ) :-		limpa_proximo_passo(), findall(_,menor_distancia( Objeto ),_), !.
+encontrar_mais_proximo( Objeto, Tipo ) :-	limpa_proximo_passo(), findall(_,menor_distancia( Objeto, Tipo ),_), !.
 
-menor_distancia() 			:-	fronteira( X , Y ) , posicao(Z, W), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto ) 		:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto, mover ) 	:-	sensor( ( _ , _ ) , ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
-menor_distancia( Objeto, atirar ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ) , adiciona_proximo_passo( ( X , Y ) , Custo , atirar ).
+menor_distancia() 			:-	fronteira( X , Y ) , posicao(Z, W), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto ) 		:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto, mover ) 	:-	sensor( ( _ , _ ) , ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , mover ).
+menor_distancia( Objeto, atirar ) 	:-	certeza( ( X , Y ) , Objeto ) , posicao( Z , W ), distancia_manhatam( ( Z , W ) , ( X , Y ) , Custo ), Custo =< 4 , adiciona_proximo_passo( ( X , Y ) , Custo , atirar ).
 
 % PARA COMUNICAÇÃO COM O JAVA
 

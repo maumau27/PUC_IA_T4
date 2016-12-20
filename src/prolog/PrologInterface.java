@@ -50,7 +50,7 @@ abstract public class PrologInterface {
 				for( int i = 0 ; i < solution.length ; i++ ) {
 					x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
 					y = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Y")) );
-					
+
 					Singletons.gameGrid.getCell(x, y).discovered = true;
 					Singletons.gameGrid.getCell(x, y).frontier = false;
 					Singletons.gameGrid.getCell(x, y).type = Translations.getJavaCellType(String.valueOf(solution[i].get("O")));
@@ -76,6 +76,17 @@ abstract public class PrologInterface {
 					tCell.destroyed = true;
 				}	
 				
+				query = MyProlog.doQuery("sensor((X,Y), (Z,W),O)" , true );	
+				solution = query.allSolutions();
+				for( int i = 0 ; i < solution.length ; i++ ) {
+					x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
+					y = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Y")) );
+					
+					z = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Z")) );
+					w = java.lang.Integer.parseInt( String.valueOf(solution[i].get("W")) );
+					
+					System.out.println("Sensor ("+x+","+y+") ("+z+","+w+") " + Translations.getJavaCellType(String.valueOf(solution[i].get("O"))));
+				}	
 				break;
 			
 				

@@ -29,7 +29,7 @@ public class Bot implements Runnable {
 
 	List<String> msg = new ArrayList<String>();
 	double msgSeconds = 0;
-	int timer_interval = 1000;
+	int timer_interval = 100;
 
 	public Bot() {
 		// Set command listener to process commands received from server
@@ -61,6 +61,7 @@ public class Bot implements Runnable {
 								else
 									gameAi.GetObservationsClean();
 
+								ready = true;
 							} else if (cmd[0].equals("s")) {
 								if (cmd.length > 1) {
 									gameAi.SetStatus(Integer.parseInt(cmd[1]), Integer.parseInt(cmd[2]), cmd[3], cmd[4],
@@ -92,8 +93,10 @@ public class Bot implements Runnable {
 									if (!gameStatus.equals(cmd[1]))
 										playerList.clear();
 
-									if (!gameStatus.equals(cmd[1]))
+									if (!gameStatus.equals(cmd[1])){
 										System.out.println("New Game Status: " + cmd[1]);
+										ready = true;
+									}
 
 									gameStatus = cmd[1];
 									time = Long.parseLong(cmd[2]);
@@ -248,32 +251,38 @@ public class Bot implements Runnable {
 	/**
 	 * Execute some decision
 	 */
+	boolean ready = true;
 	private void DoDecision() {
-		String decision = gameAi.GetDecision();
-
-		if (decision.equals("turn_right")) {
-			client.sendTurnRight();
+		
+		if(ready){
+			ready = false;
+			String decision = gameAi.GetDecision();
+	
+			if (decision.equals("turn_right")) {
+				client.sendTurnRight();
+			}
+			else if (decision.equals("turn_left")) {
+				client.sendTurnLeft();
+			}
+			else if (decision.equals("move_forward")) {
+				System.out.println("PRA FRENTE");
+				client.sendForward();
+			}
+			else if (decision.equals("move_backward")) {
+				client.sendBackward();
+			}
+			else if (decision.equals("fire")) {
+				client.sendShoot();
+			}
+			else if (decision.equals("pickup")) {
+				client.sendGetItem();
+			}
+	
+	
+			client.sendRequestUserStatus();
+			client.sendRequestObservation();
+			
 		}
-		else if (decision.equals("turn_left")) {
-			client.sendTurnLeft();
-		}
-		else if (decision.equals("move_forward")) {
-			System.out.println("PRA FRENTE");
-			client.sendForward();
-		}
-		else if (decision.equals("move_backward")) {
-			client.sendBackward();
-		}
-		else if (decision.equals("fire")) {
-			client.sendShoot();
-		}
-		else if (decision.equals("pickup")) {
-			client.sendGetItem();
-		}
-
-
-		client.sendRequestUserStatus();
-		client.sendRequestObservation();
 	}
 
 	/**

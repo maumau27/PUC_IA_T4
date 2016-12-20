@@ -1,6 +1,7 @@
 package dataTypes;
 
 public enum CellType {
+	UNKNOWN,
 	CLEAN,
 	WALL,
 	ENEMY,

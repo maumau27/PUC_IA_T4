@@ -76,6 +76,9 @@ public class GameAI
     	MyProlog.doQuery("atualizar_orientacao( "+ prologDir +" )" );    
         MyProlog.doQuery("atualizar_posicao(" + player.x + "," + player.y + ")");
         MyProlog.doQuery("atualizar_energia(" + energy + ")" );
+        
+        PrologInterface.updateFromProlog( UpdateTypes.POSITION );
+        PrologInterface.updateFromProlog( UpdateTypes.DIRECTION ); 
     }
 
     public String getDirection(){
@@ -174,7 +177,9 @@ public class GameAI
             {
                 if(s.equals("blocked")){
                 	Position pos = this.NextPosition();
-            		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
+                	if(pos.x >= 0 && pos.x < 59 &&
+                			pos.y >= 0 && pos.y < 34)
+                		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
             		flag = true;
                 } else if(s.equals("steps")){
 
@@ -183,19 +188,54 @@ public class GameAI
                 } else if(s.equals("flash")){
                     MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "teleporte)" );
                 } else if(s.equals("blueLight")){
-                    MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
-                    flag = true;
-                } else if(s.equals("redLight")){
+                	this.commandList.clear();
+					this.commandList.add(Commands.PICKUP);
                     MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "ouro)" );
                     flag = true;
-                } else if(s.equals("greenLight")){
-
-                } else if(s.equals("weakLight")){
-
-                }
+                } else if(s.equals("redLight")){
+                    MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
+                    flag = true;
+	            } else if (s.indexOf("enemy#") > -1) {
+					try{
+						int steps = Integer.parseInt(s.replaceFirst("enemy#", ""));
+						if(steps > 0){
+							Position enemy = NextPositionAhead(steps);
+						}
+					}
+					catch(Exception ex){
+						
+					}
+					this.commandList.clear();
+					this.commandList.add(Commands.FIRE);
+				}
             }
         }
         
+        /*Random rand = new Random();
+        public string GetFrase()
+        {
+            String[] sStr = new String[14];
+            sStr[0] = "Aqui é Body Builder B PORRA!";
+            sStr[1] = "Aqui nóis constrói fibra, não é água com músculo.";
+            sStr[2] = "Sabe o que é isso daí? Trapézio descendente é o nome disso aí. ";
+            sStr[3] = "AHHHHHHHHHHHHHHHHHHHHHH..., porra! ";
+            sStr[4] = "Ó o homem ali porra!";
+            sStr[5] = "Bora caralho, você quer ver essa porra velho. ";
+            sStr[6] = "Boraaa, Hora do Show Porra. ";
+            sStr[7] = "É nóis caraio é trapezera buscando caraio!";
+            sStr[8] = "Ajuda o maluco que tá doente. ";
+            sStr[9] = "Eita porra!";
+            sStr[10] = "tá saindo da jaula o monstro! ";
+            sStr[11] = "Negativa Bambam negativa. Eita porra!";
+            sStr[12] = "Vamo monstro! ";
+            sStr[13] = "Biiiirrrrrlllllll!!!!!!!!! ";
+
+            
+
+            int n = rand.Next(0, sStr.Length);
+
+            return sStr[n];
+        }*/
         
         // Finalize the code
         if(!flag){
@@ -204,6 +244,21 @@ public class GameAI
         MyProlog.doQuery("validar_fronteiras()" );
         PrologInterface.updateFromProlog( UpdateTypes.ALL );
     }
+
+
+	public Position NextPositionAhead(int steps) {
+		Position ret = null;
+		if (dir.equals("north"))
+			ret = new Position(player.x, player.y - steps);
+		else if (dir.equals("east"))
+			ret = new Position(player.x + steps, player.y);
+		else if (dir.equals("south"))
+			ret = new Position(player.x, player.y + steps);
+		else if (dir.equals("west"))
+			ret = new Position(player.x - steps, player.y);
+
+		return ret;
+	}
 
     /**
      * Observations received

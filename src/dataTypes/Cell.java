@@ -15,7 +15,7 @@ public class Cell {
 	
 	// Apenas para Consulta
 	public IVector2D 	position = new IVector2D( 0 , 0 );
-	public CellType 	type = CellType.CLEAN;
+	public CellType 	type = CellType.UNKNOWN;
 	
 	// Atualizar com o ProLog
 	public boolean		discovered = false;
@@ -35,7 +35,7 @@ public class Cell {
 	public Cell( int x , int y ) {
 		this.position.x = x;
 		this.position.y = y;
-		this.type = CellType.CLEAN;
+		this.type = CellType.UNKNOWN;
 	}
 	
 
