@@ -27,7 +27,7 @@ decidir() :-	estado( E ) , decidir( E ).
 
 decidir(inicio) :-	atualizar_estado(explorar), decidir().
 
-decidir(explorar) :- agente_olhando_para(X, Y), fronteira(X, Y), adiciona_proximo_passo((X, Y), 1, mover), !.
+decidir(explorar) :- agente_olhando_para(X, Y), fronteira(X, Y), limpa_proximo_passo(), adiciona_proximo_passo((X, Y), 1, mover), !.
 decidir(explorar) :- encontrar_mais_proximo(), !.
 decidir(explorar) :- atualizar_estado(rota), decidir().
 
@@ -36,6 +36,9 @@ decidir(rota)	:-	atualizar_estado(inicio), decidir().
 
 decidir(machucado)	:-	certeza((_,_), power_up), encontrar_mais_proximo(power_up, pegar), !.
 decidir(machucado)	:-	atualizar_estado(inicio), decidir().
+
+decidir(fuga)	:-		limpa_proximo_passo(), forall(diagonal_agente(X, Y), adiciona_proximo_passo((X, Y), 2, mover)), atualizar_estado(machucado), !.
+decidir(fuga)	:-		atualizar_estado(inicio), decidir().
 
 
 %decidir() :-	total_ouros(X), X =< 0, limpa_proximo_passo(), certeza( (Z, W) , saida ), adiciona_proximo_passo((Z, W), 0 , sair ) , !.
@@ -55,6 +58,11 @@ agente_olhando_para(X, Y) :-	orientacao(cima), posicao(Z, W), X is Z, Y is W - 1
 agente_olhando_para(X, Y) :-	orientacao(baixo), posicao(Z, W), X is Z, Y is W + 1, (eh_no_mapa(X, Y) ; write('Parede')), !.
 agente_olhando_para(X, Y) :-	orientacao(direita), posicao(Z, W), X is Z + 1, Y is W, (eh_no_mapa(X, Y) ; write('Parede')), !.
 agente_olhando_para(X, Y) :-	orientacao(esquerda), posicao(Z, W), X is Z - 1, Y is W, (eh_no_mapa(X, Y) ; write('Parede')), !.	
+
+diagonal_agente(X, Y) :-	posicao(Z, W), X is Z - 1, Y is W - 1, (eh_no_mapa(X, Y) ; write('Parede')), ( eh_fronteira(X, Y) ; eh_conhecido(X, Y) ), !.
+diagonal_agente(X, Y) :-	posicao(Z, W), X is Z + 1, Y is W + 1, (eh_no_mapa(X, Y) ; write('Parede')), ( eh_fronteira(X, Y) ; eh_conhecido(X, Y) ), !.
+diagonal_agente(X, Y) :-	posicao(Z, W), X is Z + 1, Y is W - 1, (eh_no_mapa(X, Y) ; write('Parede')), ( eh_fronteira(X, Y) ; eh_conhecido(X, Y) ), !.
+diagonal_agente(X, Y) :-	posicao(Z, W), X is Z - 1, Y is W + 1, (eh_no_mapa(X, Y) ; write('Parede')), ( eh_fronteira(X, Y) ; eh_conhecido(X, Y) ), !.
 							
 % Define a certeza do conteudo do local X , Y					
 
@@ -187,7 +195,7 @@ atualizar_certeza(X, Y, O) :- ( certeza((X, Y), Objeto), not(eh_respawn(Objeto))
 
 observar(X, Y)		:-	not( observado(X, Y) ), assert( observado(X, Y) ).
 
-adiciona_proximo_passo((X, Y), Custo , Tipo ) :- limpa_proximo_passo(), assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
+adiciona_proximo_passo((X, Y), Custo , Tipo ) :- assert(proximo_passo( ( X , Y) , Custo , Tipo ) ).
 
 limpa_proximo_passo() :- findall(_,retract(proximo_passo(_,_,_)),_).
 
