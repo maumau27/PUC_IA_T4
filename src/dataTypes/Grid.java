@@ -180,105 +180,43 @@ public class Grid {
 		}
 	}
 	
-	public void calculateClustering() {
-		ArrayList<Cell> unclustered = new ArrayList<Cell>();
-		ArrayList<Cell> clustered = new ArrayList<Cell>();
-		Cell cell = null;
-		
-		// Get All Frontier Cells into a list
+
+	public void printGrid() {
+		System.out.print("\nGRID\n");
 		for( int y = 0 ; y < rows ; y++ ) {
 			ArrayList<Cell> newRow = this.cells.get(y);
+			System.out.print("\n");
 			for( int x = 0 ; x < cols ; x++ ) {
-				cell = newRow.get(x);
-				if( cell.frontier == true ) {
-					cell.clusterWeight = 0;
-					cell.cluster = new ArrayList<Cell>();
-					cell.cluster.add( cell );
-					unclustered.add( cell );	
+				Cell cell = newRow.get(x);
+				if( cell.discovered == true ) {
+					String mark;
+					
+					switch( cell.type ) {
+					case CLEAN:
+						mark = "-";
+						break;
+					
+					case WALL:
+						mark = "#";
+						break;
+						
+						
+					default:
+						mark = "?";
+						break;
+						
+					}
+					
+					System.out.print(mark);
+				}
+				else if ( cell.frontier == true ) {
+					System.out.print("O");
+				}
+				else {
+					System.out.print(".");
 				}
 			}	
 		}
-		
-		
-		// Clusterize Adjacent Cells 
-		ArrayList<Cell> neigh = null;
-		while( unclustered.size() > 0 ) {
-			cell = unclustered.get(0);
-			
-			unclustered.remove( cell );
-			clustered.add( cell );
-
-			neigh = this.getProximity( cell.position.x , cell.position.y , 1 , true );
-
-			for( Cell c : neigh ) {
-				if( unclustered.contains( c ) ) {
-					unclustered.remove(c);
-					clustered.add( c );
-				}
-				Grid.mergeCluster( cell , c );
-			}
-		}
-		
-		
-		// Group Unique Clusters
-		ArrayList<ArrayList<Cell>> semiClusters = new ArrayList<ArrayList<Cell>>();
-		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-		for( Cell c : clustered ) {
-			if( semiClusters.contains( c.cluster ) == false ) {
-				semiClusters.add( c.cluster );
-				clusters.add( new Cluster( c.cluster ) );
-			}
-		}
-		if( semiClusters.size() == 0 ) {
-			return;
-		}
-		
-		
-		// D: Calculate Values
-		// D.1: Pairs of clusters
-		ArrayList<ClusterPair> pairs = new ArrayList<ClusterPair>();
-		for( int i = 0 ; i < clusters.size() ; i++ ) {
-			for( int j = i+1 ; j < clusters.size() ; j++ ) {
-				pairs.add( new ClusterPair( clusters.get(i) , clusters.get(j) ) );
-			}
-		}
-		// D.2: Update weights based on distance
-		int minDist;
-		for( ClusterPair pair : pairs ) {
-			minDist = pair.getMinDist();
-			
-			pair.cluster1.finalValue += ( pair.cluster2.clusterSize / minDist );
-			pair.cluster2.finalValue += ( pair.cluster1.clusterSize / minDist );
-		}
-		
-		
-		// Transfer Cluster Info to its Cells
-		for( Cluster cluster : clusters ) {
-			for( Cell c : cluster.cells ) {
-				c.clusterWeight = cluster.finalValue;
-				
-				//System.out.println("Cluster: " + c.position.x + " , " + c.position.y + " | " + cluster.finalValue );
-			}
-		}
 	}
 	
-	
-	private static void mergeCluster( Cell cellA , Cell cellB ) {
-		if( cellA.cluster == cellB.cluster ) {
-			return;
-		}
-		
-		Cell greaterCluster = cellA;
-		Cell smallerCluster = cellB;
-		
-		// TODO: Find the real smaller cluster
-		
-		// Merge clusters
-		greaterCluster.cluster.addAll( smallerCluster.cluster );
-		for( Cell cel : smallerCluster.cluster ) {
-			cel.cluster = greaterCluster.cluster;
-		}
-		
-		smallerCluster.cluster = greaterCluster.cluster;
-	}
 }

@@ -24,20 +24,24 @@ abstract public class PrologInterface {
 				break;
 		
 			case POSITION:
-				query = MyProlog.doQuery("posicao(X,Y)" );	
-				solution = query.allSolutions();
-				x = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
-				y = java.lang.Integer.parseInt( String.valueOf(solution[0].get("Y")) );	
-				
-				Singletons.heroPosition.x = x;
-				Singletons.heroPosition.y = y;	
+				query = MyProlog.doQuery("posicao(X,Y)" );			
+				if( query.hasSolution() ) {
+					solution = query.allSolutions();
+					x = java.lang.Integer.parseInt( String.valueOf(solution[0].get("X")) );
+					y = java.lang.Integer.parseInt( String.valueOf(solution[0].get("Y")) );	
+					
+					Singletons.heroPosition.x = x;
+					Singletons.heroPosition.y = y;	
+				}
 				break;
 				
 			case DIRECTION:
 				query = MyProlog.doQuery("orientacao(X)" );	
-				solution = query.allSolutions();
+				if( query.hasSolution() ) {
+					solution = query.allSolutions();
 				
-				Singletons.heroDirection = Translations.getJavaDirection( String.valueOf(solution[0].get("X")) );
+					Singletons.heroDirection = Translations.getJavaDirection( String.valueOf(solution[0].get("X")) );
+				}
 				break;
 				
 			case MAP:

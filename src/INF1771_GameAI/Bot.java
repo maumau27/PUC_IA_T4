@@ -8,6 +8,7 @@ import java.util.Map;
 
 import INF1771_GameClient.Dto.*;
 import INF1771_GameClient.Socket.*;
+import data.Singletons;
 
 public class Bot implements Runnable {
 
@@ -28,7 +29,7 @@ public class Bot implements Runnable {
 
 	List<String> msg = new ArrayList<String>();
 	double msgSeconds = 0;
-	int timer_interval = 100;
+	int timer_interval = 1000;
 
 	public Bot() {
 		// Set command listener to process commands received from server
@@ -257,6 +258,7 @@ public class Bot implements Runnable {
 			client.sendTurnLeft();
 		}
 		else if (decision.equals("move_forward")) {
+			System.out.println("PRA FRENTE");
 			client.sendForward();
 		}
 		else if (decision.equals("move_backward")) {
@@ -272,7 +274,6 @@ public class Bot implements Runnable {
 
 		client.sendRequestUserStatus();
 		client.sendRequestObservation();
-
 	}
 
 	/**
@@ -294,9 +295,9 @@ public class Bot implements Runnable {
 			
 
 			if (gameStatus.equals("Game")) {
-				System.out.println("DECISION: " + gameStatus );
-				client.sendTurnLeft();
-				//DoDecision();
+				//client.sendTurnLeft();
+				DoDecision();
+				Singletons.gameGrid.printGrid();
 			}
 			else if (msgSeconds >= 5000) {
 

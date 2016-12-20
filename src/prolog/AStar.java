@@ -139,6 +139,7 @@ public class AStar {
 					case ENEMY:
 					case CYCLONE:
 					case LANDMINE:
+					case WALL:
 						return;
 				}
 			}

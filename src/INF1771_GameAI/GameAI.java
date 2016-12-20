@@ -36,7 +36,7 @@ public class GameAI
         
         // Java State
         this.commandList = new ArrayList<Commands>();
-        Singletons.gameGrid = new Grid( Singletons.gridSize.x , Singletons.gridSize.y );
+        Singletons.gameGrid = new Grid( Singletons.gridSize.y , Singletons.gridSize.x );
     }
     
     /**
@@ -58,16 +58,24 @@ public class GameAI
         this.score = score;
         this.energy = energy;
 
-        if(firstTime == true){
-            firstTime = false;
-            MyProlog.doQuery("assert( posicao(" + player.x + "," + player.y + ") )");
-            MyProlog.doQuery("assert( orientacao( cima ) )" );
-            MyProlog.doQuery("assert( energia(" + energy + ") )" );
-        } else {
-            MyProlog.doQuery("atualizar_posicao(" + player.x + "," + player.y + ")");
-            MyProlog.doQuery("atualizar_orientacao(" + dir + ")" );
-            MyProlog.doQuery("atualizar_energia(" + energy + ")" );
-        }
+    	String prologDir;
+    	switch( dir.toLowerCase() ) {
+    	case "south":
+    		prologDir = "baixo";
+    		break;
+    	case "west":
+    		prologDir = "esquerda";
+    		break;
+    	case "east":
+    		prologDir = "direita";
+    		break;
+    	default:
+    		prologDir = "cima";
+    		break;
+    	}
+    	MyProlog.doQuery("atualizar_orientacao( "+ prologDir +" )" );    
+        MyProlog.doQuery("atualizar_posicao(" + player.x + "," + player.y + ")");
+        MyProlog.doQuery("atualizar_energia(" + energy + ")" );
     }
 
     public String getDirection(){
@@ -151,6 +159,51 @@ public class GameAI
         player.y = y;
 
     }
+    
+    
+    public void prologObservation(List<String> o) {
+        boolean flag 		= false;
+
+        MyProlog.doQuery( "observar(" +player.x +"," +player.y +")" ); 
+        
+        System.out.println("GameAI pos: " +player.x + "," +player.y);
+        
+        // Tenho Observacoes
+        if( o != null ) {
+            for (String s : o)
+            {
+                if(s.equals("blocked")){
+                	Position pos = this.NextPosition();
+            		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
+            		flag = true;
+                } else if(s.equals("steps")){
+
+                } else if(s.equals("breeze")){
+                    MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "buraco)" );
+                } else if(s.equals("flash")){
+                    MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "teleporte)" );
+                } else if(s.equals("blueLight")){
+                    MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
+                    flag = true;
+                } else if(s.equals("redLight")){
+                    MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "ouro)" );
+                    flag = true;
+                } else if(s.equals("greenLight")){
+
+                } else if(s.equals("weakLight")){
+
+                }
+            }
+        }
+        
+        
+        // Finalize the code
+        if(!flag){
+            MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "nada)" );
+        }
+        MyProlog.doQuery("validar_fronteiras()" );
+        PrologInterface.updateFromProlog( UpdateTypes.ALL );
+    }
 
     /**
      * Observations received
@@ -158,41 +211,7 @@ public class GameAI
      */
     public void GetObservations(List<String> o)
     {
-
-        boolean flag = false;
-
-        for (String s : o)
-        {
-            if(s.equals("blocked")){
-            	Position pos = this.NextPosition();
-        		MyProlog.doQuery("definir_certeza(" + pos.x +"," +pos.y +",parede)" );
-            } else if(s.equals("steps")){
-
-            } else if(s.equals("breeze")){
-                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "buraco)" );
-            } else if(s.equals("flash")){
-                MyProlog.doQuery("criar_sensores_em(" + player.x + "," + player.y + "," +  "teleporte)" );
-            } else if(s.equals("blueLight")){
-                MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "power_up)" );
-                flag = true;
-            } else if(s.equals("redLight")){
-                MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "ouro)" );
-                flag = true;
-            } else if(s.equals("greenLight")){
-
-            } else if(s.equals("weakLight")){
-
-            }
-        }
-        if(!flag){
-            MyProlog.doQuery("definir_certeza(" + player.x + "," + player.y + "," +  "nada)" );
-        }
-
-        MyProlog.doQuery("validar_fronteira()" );
-        
-        
-        PrologInterface.updateFromProlog( UpdateTypes.ALL );
-
+    	this.prologObservation(o);
     }
 
     /**
@@ -200,7 +219,7 @@ public class GameAI
      */
     public void GetObservationsClean()
     {
-        
+    	this.prologObservation(null);
     }
 
     /**
@@ -239,6 +258,8 @@ public class GameAI
         MyProlog.doQuery("decidir()" );
         query = MyProlog.doQuery("proximo_passo((X,Y),O,T)" , true ); 
         solution = query.allSolutions();
+        
+        System.out.println("Prolog Decisions:");
         for( int i = 0 ; i < solution.length ; i++ ) {
             x = java.lang.Integer.parseInt( String.valueOf(solution[i].get("X")) );
             y = java.lang.Integer.parseInt( String.valueOf(solution[i].get("Y")) );
@@ -246,7 +267,8 @@ public class GameAI
             
             cells.add( new PrologCellDecidions(x,y,o,String.valueOf(solution[i].get("T"))) );
             
-            //System.out.println( "Prolog CMD: x: " + x + " | y: " + y + " | T : " + String.valueOf(solution[i].get("T")) );
+            
+            System.out.println( "Prolog CMD: x: " + x + " | y: " + y + " | T : " + String.valueOf(solution[i].get("T")) );
         }
         
         
@@ -287,19 +309,27 @@ public class GameAI
             }
         }
     
-        
-        // Find Best Path
-        AStarPath   bestPathRaw = pathList.get(0);
-        pathList.remove(0);       
-        for( AStarPath aPath : pathList ) {
-            if( aPath.cost >= bestPathRaw.cost ) {
-            	continue;
-            }
-            else {
-            	 bestPathRaw = aPath;
-            }
+        // Check If AStar have a path
+        if( pathList.size() == 0 ) {
+        	this.commandList.clear();
         }
-        
-        commandList = bestPathRaw.commandList;  
+        else {     
+	        // Find Best Path
+	        AStarPath   bestPathRaw = pathList.get(0);
+	        pathList.remove(0);       
+	        for( AStarPath aPath : pathList ) {
+	            if( aPath.cost >= bestPathRaw.cost ) {
+	            	continue;
+	            }
+	            else {
+	            	 bestPathRaw = aPath;
+	            }
+	        }
+	        
+	        System.out.println("AStar Decisions:");
+	        System.out.println( bestPathRaw.origin.x + " , " + bestPathRaw.origin.y + " | " + bestPathRaw.destiny.x + " , " + bestPathRaw.destiny.y );
+	        
+	        this.commandList = bestPathRaw.commandList;  
+        }
     }
 }

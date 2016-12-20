@@ -76,6 +76,9 @@ public class Translations {
 		CellType type;
 		
 		switch( prologString ) {
+			case "parede":
+				type = CellType.WALL;
+				break;
 		
 			case "buraco":
 				type = CellType.LANDMINE;
